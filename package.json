@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-rest-controller": "mocha 'test/rest/controller/**/*.test.js' --timeout 10000",
-    "start-rest": "node rest/server.js",
-    "start-graphql": "node graphql/server.js"
+    "start-graphql": "node graphql/server.js",
+    "test-graphql-external": "mocha 'test/graphql/external/**/*.test.js' --timeout 10000"
   },
   "repository": {
     "type": "git",
