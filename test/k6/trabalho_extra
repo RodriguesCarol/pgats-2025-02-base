@@ -1,0 +1,106 @@
+import http from 'k6/http';
+import { sleep, check, group } from 'k6';
+
+export const options = {
+  vus: 10,
+  iterations: 20,
+  thresholds: {
+    http_req_duration: ['p(90)<=2', 'p(95)<=3'],
+    http_req_failed: ['rate<0.01'],
+  },
+};
+
+export default function () {
+  let responseRegister = '';
+  let responseLogin = '';
+  
+
+  let name = `user${Math.floor(Math.random() * 10000)}`;
+  const password = "123456";
+  let email = `user${Math.floor(Math.random() * 10000)}@gmail.com`;
+
+  group('Registrando usuário', () => {
+    const payloadRegister = JSON.stringify({
+      name: name,
+      email: email,
+      password: password
+    });
+
+    responseRegister = http.post(
+      'http://localhost:3000/api/users/register',
+      payloadRegister,
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
+    check(responseRegister, {
+      'status deve ser igual a 201 quando usuário registrado': (res) => res.status === 201
+    });
+
+    console.log('Resposta do registro:', responseRegister.body);
+  });
+
+  group('Fazendo login', () => {
+    const payloadLogin = JSON.stringify({
+      email: email,
+      password: password
+    });
+
+    responseLogin = http.post(
+      'http://localhost:3000/api/users/login',
+      payloadLogin,
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
+    check(responseLogin, {
+      'status deve ser igual a 200 quando login bem-sucedido': (res) => res.status === 200
+    });
+
+    console.log('Resposta do login:', responseLogin.body);
+  });
+
+  group('Realizando checkout', () => {
+    const token = responseLogin.json('token');
+
+    let payloadCheckout = JSON.stringify({
+      items: [
+        {
+          productId: 1,
+          quantity: 1
+        }
+      ],
+      freight: 0,
+      paymentMethod: "boleto",
+      cardData: {
+        number: "string",
+        name: "string",
+        expiry: "string",
+        cvv: "string"
+      }
+    });
+
+    let responseCheckout = http.post(
+      'http://localhost:3000/api/checkout',
+      payloadCheckout,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    console.log('Resposta do checkout:', responseCheckout.body);
+
+    check(responseCheckout, {
+      'status deve ser igual a 200 quando checkout realizado': (res) => res.status === 200 
+    });
+  });
+
+  group('Simulando o pensamento do usuário', () => {
+    sleep(1);
+  });
+}
