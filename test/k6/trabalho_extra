@@ -3,7 +3,7 @@ import { sleep, check, group } from 'k6';
 
 export const options = {
   vus: 10,
-  iterations: 20,
+  iterations: 200,
   thresholds: {
     http_req_duration: ['p(90)<=2', 'p(95)<=3'],
     http_req_failed: ['rate<0.01'],
@@ -38,7 +38,7 @@ export default function () {
       'status deve ser igual a 201 quando usuário registrado': (res) => res.status === 201
     });
 
-    console.log('Resposta do registro:', responseRegister.body);
+    
   });
 
   group('Fazendo login', () => {
@@ -59,7 +59,7 @@ export default function () {
       'status deve ser igual a 200 quando login bem-sucedido': (res) => res.status === 200
     });
 
-    console.log('Resposta do login:', responseLogin.body);
+   
   });
 
   group('Realizando checkout', () => {
@@ -93,7 +93,7 @@ export default function () {
       }
     );
 
-    console.log('Resposta do checkout:', responseCheckout.body);
+    
 
     check(responseCheckout, {
       'status deve ser igual a 200 quando checkout realizado': (res) => res.status === 200 
