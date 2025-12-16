@@ -219,13 +219,9 @@ Acesse o playground GraphQL em [http://localhost:4000/graphql](http://localhost:
 
 ## Conceitos do K6 Utilizados nos Testes
 
-Os testes de performance localizados em `test/k6/trabalho_final.js` utilizam os seguintes conceitos do K6:
-
----
-
 ### Thresholds
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.js` e demonstra o uso do conceito de **Thresholds**, onde são definidos os limites aceitáveis de desempenho e falha das requisições HTTP durante a execução do teste de carga.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Thresholds**, onde são definidos os limites aceitáveis de desempenho e falha das requisições HTTP durante a execução do teste de carga.
 
 ```javascript
 export const options = {
@@ -234,3 +230,128 @@ export const options = {
     http_req_failed: ['rate<0.01'],
   },
 };
+```
+
+### Checks
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Checks**, que valida respostas das requisições, como status HTTP.
+
+```javascript
+check(responseRegister, {
+  'status deve ser igual a 201 quando usuário registrado': (res) => res.status === 201
+});
+```
+
+### Helpers
+
+O código abaixo está armazenado nos arquivos `test/helpers/login.js`, `test/helpers/register.js` e `test/helpers/checkout.js` e demonstra o uso do conceito de **Helpers**, que são funções reutilizáveis para endpoints.
+
+```javascript
+import http from 'k6/http';
+import { BASE_URL } from './baseURL.js';
+
+export function login(email, password) {
+  const payload = JSON.stringify({
+    email,
+    password
+  });
+
+  return http.post(`${BASE_URL}/api/users/login`, payload, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+```
+
+### Trends
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Trends**, que são métricas customizadas utilizadas para acompanhar a duração das requisições HTTP em diferentes fluxos da aplicação.
+
+```javascript
+export const PostCheckOutDurationTrend = new Trend('PostCheckOutDurationTrend');
+export const PostRegisterDurationTrend = new Trend('PostRegisterOutDurationTrend');
+export const PostLoginDurationTrend = new Trend('PostLoginOutDurationTrend');
+
+PostRegisterDurationTrend.add(responseRegister.timings.duration);
+PostLoginDurationTrend.add(responseLogin.timings.duration);
+PostCheckOutDurationTrend.add(responseCheckout.timings.duration);
+```
+
+### Faker
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso da biblioteca **Faker**, utilizada para gerar dados aleatórios durante a execução dos testes, tornando os cenários mais dinâmicos e evitando o uso de dados fixos.
+
+```javascript
+let name = faker.person.firstName();
+let password = faker.internet.password();
+```
+
+### Variável de Ambiente (Base URL)
+
+O código abaixo está armazenado no arquivo `test/helpers/baseURL.js` e demonstra a definição da **Base URL** da aplicação, utilizada de forma centralizada nos helpers de requisição.
+
+```javascript
+export const BASE_URL = 'http://localhost:3000';
+```
+
+### Stages
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linhas 29–35) e demonstra o uso do conceito de **Stages**, responsável por controlar a variação da carga ao longo do tempo, simulando o comportamento real dos usuários.
+
+```javascript
+stages: [
+  { duration: '3s', target: 2 },
+  { duration: '15s', target: 2 },
+  { duration: '2s', target: 5 },
+  { duration: '3s', target: 5 },
+  { duration: '5s', target: 10 },
+  { duration: '5s', target: 0 },
+];
+```
+
+### Reaproveitamento de Resposta (Captura de Token)
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linha 73) e demonstra o reaproveitamento de dados de uma resposta anterior, especificamente a captura do token de autenticação retornado no login.
+
+```javascript
+const token = responseLogin.json('token');
+```
+
+### Uso de Token de Autenticação
+
+O código abaixo está armazenado no arquivo `test/helpers/checkout.js` (linha 25) e demonstra o uso do token JWT no header das requisições autenticadas.
+
+```javascript
+headers: {
+  'Authorization': `Bearer ${token}`,
+};
+```
+
+### Data-Driven Testing
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linhas 16–17) e demonstra o uso do conceito de **Data-Driven Testing**, onde os dados de entrada são carregados a partir de um arquivo externo em formato JSON.
+
+```javascript
+const users = new SharedArray('users', function () {
+  return JSON.parse(open('../data/login.data.json'));
+});
+```
+
+### Groups
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Groups**, utilizado para organizar o teste em blocos lógicos que representam diferentes fluxos da aplicação.
+
+```javascript
+group('Simulando cadastro de usuário', () => {
+  // register
+});
+
+group('Fazendo login', () => {
+  // login
+});
+
+group('Realizando checkout', () => {
+  // checkout
+});
+```
