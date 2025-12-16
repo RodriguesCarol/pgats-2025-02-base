@@ -1,0 +1,86 @@
+import http from 'k6/http';
+import { sleep, check, group } from 'k6';
+import { SharedArray } from 'k6/data';
+import { BASE_URL } from '../helpers/baseURL.js';
+import { login } from '../helpers/login.js';
+import { register } from '../helpers/register.js';
+import { checkout } from '../helpers/checkout.js';
+import faker from 'k6/x/faker';
+import { generateRandomEmail } from '../helpers/randomData.js';
+import { Trend } from 'k6/metrics';
+
+export const PostCheckOutDurationTrend = new Trend('PostCheckOutDurationTrend');
+export const PostRegisterDurationTrend = new Trend('PostRegisterOutDurationTrend');
+export const PostLoginDurationTrend = new Trend('PostLoginOutDurationTrend');
+
+const users = new SharedArray('users', function() {
+    return JSON.parse(open('../data/login.data.json'));
+});
+
+
+
+
+
+export const options = {
+  thresholds: {
+    http_req_duration: ['p(90)<=2', 'p(95)<=3'],
+    http_req_failed: ['rate<0.01'],
+  },
+  stages: [
+        { duration: '3s', target: 2 },
+        { duration: '15s', target: 2 },
+        { duration: '2s', target: 5 },
+        { duration: '3s', target: 5},
+        { duration: '5s', target: 10},
+        { duration: '5s', target: 0 },
+
+      ],
+};
+
+export default function () {
+  let responseRegister = '';
+  let responseLogin = '';
+  
+
+  let name = faker.person.firstName();
+  let password = faker.internet.password();
+  let email = generateRandomEmail();
+
+  
+
+  group('Registrando usuário', () => {
+   responseRegister = register (name,email,password);
+    check(responseRegister, {
+      'status deve ser igual a 201 quando usuário registrado': (res) => res.status === 201
+    });
+    PostRegisterDurationTrend.add(responseRegister.timings.duration);
+
+   
+    
+  });
+
+  group('Fazendo login', () => {
+    const user = users[(__VU - 1) % users.length];
+    responseLogin = login(user.email, user.password);
+    check(responseLogin, {
+      'status deve ser igual a 200 quando login bem-sucedido': (res) => res.status === 200
+    });
+    PostLoginDurationTrend.add(responseLogin.timings.duration);
+    
+  });
+
+  group('Realizando checkout', () => {
+    const token = responseLogin.json('token');
+    let responseCheckout = checkout(token);
+
+    check(responseCheckout, {
+      'status deve ser igual a 200 quando checkout realizado': (res) => res.status === 200 
+    });
+    PostCheckOutDurationTrend.add(responseCheckout.timings.duration);
+   
+  });
+
+  group('Simulando o pensamento do usuário', () => {
+    sleep(1);
+  });
+}
