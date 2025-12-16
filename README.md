@@ -219,76 +219,18 @@ Acesse o playground GraphQL em [http://localhost:4000/graphql](http://localhost:
 
 ## Conceitos do K6 Utilizados nos Testes
 
-Os testes de performance em `test/k6/trabalho_final` utilizam os seguintes conceitos do K6:
+Os testes de performance localizados em `test/k6/trabalho_final.js` utilizam os seguintes conceitos do K6:
 
-- **Thresholds**: Definir critérios automáticos de aceitação para validar se a performance do sistema testado está dentro dos limites esperados (`test/k6/trabalho_final`), linhas 25 a 27
+---
 
-thresholds: {
+### Thresholds
+
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final.js` e demonstra o uso do conceito de **Thresholds**, onde são definidos os limites aceitáveis de desempenho e falha das requisições HTTP durante a execução do teste de carga.
+
+```javascript
+export const options = {
+  thresholds: {
     http_req_duration: ['p(90)<=2', 'p(95)<=3'],
     http_req_failed: ['rate<0.01'],
   },
-
-- **Checks**: Valida respostas das requisições, como status HTTP (`test/k6/trabalho_final`), linhas 53-54 para register, 
-
-check(responseRegister, {
-      'status deve ser igual a 201 quando usuário registrado': (res) => res.status === 201
-    });
-
-- **Helpers**: Funções reutilizáveis em `test/helpers/` para endpoints (`test/helpers/login.js`, `test/helpers/register.js`, `test/helpers/checkout.js`: `export function login(email, password)`).
-import http from 'k6/http';
-import { BASE_URL } from './baseURL.js';
-
-export function login(email, password) {
-    const payload = JSON.stringify({
-        email,
-        password
-    });
-
-    return http.post(`${BASE_URL}/api/users/login`, payload, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-}
-
-- **Trends**: Métricas customizadas para acompanhar duração de requisições (`test/k6/trabalho_final`), linhas 12-14
-
-export const PostCheckOutDurationTrend = new Trend('PostCheckOutDurationTrend');
-export const PostRegisterDurationTrend = new Trend('PostRegisterOutDurationTrend');
-export const PostLoginDurationTrend = new Trend('PostLoginOutDurationTrend');
- 
- Declaração para register,para login, para checkout: `PostLoginDurationTrend.add(response.timings.duration)`.
-
-- **Faker**: Gera dados aleatórios para testes dinâmicos (`test/k6/trabalho_final`), linha 8 import, linha 45-46 uso: 
-
-let name = faker.person.firstName();
-let password = faker.internet.password();
-
-- **Variável de Ambiente (URL)**: Base URL definida em `test/helpers/baseURL.js` 
-linha 4:
-
- `export const BASE_URL = 'http://localhost:3000'`.
-
-- **Stages**: definir o ramp-up (aumento gradual), os steps/plateaus (manutenção da carga) e o ramp-down (redução), simulando o comportamento real de usuários ao longo do tempo.
-(`test/k6/trabalho_final`), linhas 29-35: 
-stages: [
-        { duration: '3s', target: 2 },
-        { duration: '15s', target: 2 },
-        { duration: '2s', target: 5 },
-        { duration: '3s', target: 5},
-        { duration: '5s', target: 10},
-        { duration: '5s', target: 0 },
-
-      ],
-
-- **Reaproveitamento de Resposta (Captura Token)**: Extrai dados de respostas anteriores (`test/k6/trabalho_final`, linha 73: `const token = responseLogin.json('token')`).
-
-- **Uso de Token de Autenticação**: Inclui token JWT em headers (`test/helpers/checkout.js`, linha 25: `'Authorization': \`Bearer ${token}\``).
-
-- **Data-Driven Testing**: Carrega dados de arquivo JSON para variar entradas (`test/k6/trabalho_final`, linhas 16-17: `const users = new SharedArray('users', function() { return JSON.parse(open('../data/login.data.json')); })`).
-
-- **Groups**: Organiza testes em blocos lógicos (`test/k6/trabalho_final`), linha 51 para register, 62  para login, 72 para checkout: 
-
-group('Fazendo login', () => { ...
-group('Realizando checkout', () => { ...
-group('Simulando o pensamento do usuário', () => { ..
+};
