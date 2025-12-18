@@ -5,7 +5,7 @@ import { BASE_URL } from '../helpers/baseURL.js';
 import { login } from '../helpers/login.js';
 import { register } from '../helpers/register.js';
 import { checkout } from '../helpers/checkout.js';
-import faker from 'k6/x/faker';
+import faker from "k6/x/faker";
 import { generateRandomEmail } from '../helpers/randomData.js';
 import { Trend } from 'k6/metrics';
 
