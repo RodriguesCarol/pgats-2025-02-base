@@ -221,7 +221,7 @@ Acesse o playground GraphQL em [http://localhost:4000/graphql](http://localhost:
 
 ### Thresholds
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` e demonstra o uso do conceito de **Thresholds**, onde são definidos os limites aceitáveis de desempenho e falha das requisições HTTP durante a execução do teste de carga.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Thresholds**, onde são definidos os limites aceitáveis de desempenho e falha das requisições HTTP durante a execução do teste de carga.
 
 ```javascript
 export const options = {
@@ -234,7 +234,7 @@ export const options = {
 
 ### Checks
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` e demonstra o uso do conceito de **Checks**, que valida respostas das requisições, como status HTTP.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Checks**, que valida respostas das requisições, como status HTTP.
 
 ```javascript
 check(responseRegister, {
@@ -266,7 +266,7 @@ export function login(email, password) {
 
 ### Trends
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` e demonstra o uso do conceito de **Trends**, que são métricas customizadas utilizadas para acompanhar a duração das requisições HTTP em diferentes fluxos da aplicação.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso do conceito de **Trends**, que são métricas customizadas utilizadas para acompanhar a duração das requisições HTTP em diferentes fluxos da aplicação.
 
 ```javascript
 export const PostCheckOutDurationTrend = new Trend('PostCheckOutDurationTrend');
@@ -280,7 +280,7 @@ PostCheckOutDurationTrend.add(responseCheckout.timings.duration);
 
 ### Faker
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` e demonstra o uso da biblioteca **Faker**, utilizada para gerar dados aleatórios durante a execução dos testes, tornando os cenários mais dinâmicos e evitando o uso de dados fixos.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` e demonstra o uso da biblioteca **Faker**, utilizada para gerar dados aleatórios durante a execução dos testes, tornando os cenários mais dinâmicos e evitando o uso de dados fixos.
 
 ```javascript
 let name = faker.person.firstName();
@@ -297,7 +297,7 @@ export const BASE_URL = 'http://localhost:3000';
 
 ### Stages
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` (linhas 29–35) e demonstra o uso do conceito de **Stages**, responsável por controlar a variação da carga ao longo do tempo, simulando o comportamento real dos usuários.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linhas 29–35) e demonstra o uso do conceito de **Stages**, responsável por controlar a variação da carga ao longo do tempo, simulando o comportamento real dos usuários.
 
 ```javascript
 stages: [
@@ -312,7 +312,7 @@ stages: [
 
 ### Reaproveitamento de Resposta (Captura de Token)
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` (linha 73) e demonstra o reaproveitamento de dados de uma resposta anterior, especificamente a captura do token de autenticação retornado no login.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linha 73) e demonstra o reaproveitamento de dados de uma resposta anterior, especificamente a captura do token de autenticação retornado no login.
 
 ```javascript
 const token = responseLogin.json('token');
@@ -330,7 +330,7 @@ headers: {
 
 ### Data-Driven Testing
 
-O código abaixo está armazenado no arquivo `test/k6/trabalho_final.k6.js` (linhas 16–17) e demonstra o uso do conceito de **Data-Driven Testing**, onde os dados de entrada são carregados a partir de um arquivo externo em formato JSON.
+O código abaixo está armazenado no arquivo `test/k6/trabalho_final` (linhas 16–17) e demonstra o uso do conceito de **Data-Driven Testing**, onde os dados de entrada são carregados a partir de um arquivo externo em formato JSON.
 
 ```javascript
 const users = new SharedArray('users', function () {
@@ -355,3 +355,7 @@ group('Realizando checkout', () => {
   // checkout
 });
 ```
+
+### Relatórios
+Para exibição de relatório em html utilize esse comando:
+K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=html-report.html K6_WEB_DASHBOARD_PERIOD=2s k6 run ./test/k6/trabalho_final.k6.js
